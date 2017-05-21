@@ -6,7 +6,7 @@ import os, utils
 
 class RBM(object):
 
-    def __init__(self, data_shape, directory_name='rbm', model_name='', learning_rate=0.001, batch_size=128, n_epoch=50, k_step=1, hidden_dim=100):
+    def __init__(self, data_shape, directory_name='rbm', model_name='', learning_rate=0.00001, batch_size=128, n_epoch=50, k_step=1, hidden_dim=100):
         """
         RBM class - implementation of Restricted Boltzmann Machine for Collaborative Filtering
         Paper can be found at: http://www.machinelearning.org/proceedings/icml2007/papers/407.pdf
@@ -78,13 +78,13 @@ class RBM(object):
                     total_error += result[1]
                 print("Cost at epoch %s of training: %s" % (epoch, total_error/len(batches)))
 
-                if epoch % 5 == 0:
-                    result = self.sess.run([merged, self.cost], feed_dict={self.X: valX})
-                    summary_str = result[0]
-                    err = result[1]
-
-                    writer.add_summary(summary_str, 1)
-                    print("Cost at epoch %s on validation set: %s" % (epoch, err))
+                # if epoch % 5 == 0:
+                #     result = self.sess.run([merged, self.cost], feed_dict={self.X: valX})
+                #     summary_str = result[0]
+                #     err = result[1]
+                #
+                #     writer.add_summary(summary_str, 1)
+                #     print("Cost at epoch %s on validation set: %s" % (epoch, err))
             self.saver.save(self.sess, self.models_dir + self.model_name)
 
     def _create_variable(self):
@@ -142,7 +142,12 @@ class RBM(object):
         Sample visible layer when given hidden layer
         :param h_sample: hidden layer sample
         """
-        v_prob = tf.nn.sigmoid(tf.matmul(h_sample, tf.transpose(self.W)) + self.v_bias)
+        # Remove all the movie have not been rating
+        v_prob_tmp = tf.matmul(h_sample, tf.transpose(self.W)) + self.v_bias
+        v_mask = tf.sign(self.X)
+        v_prob_tmp = tf.reshape((v_prob_tmp * v_mask), [tf.shape(v_prob_tmp)[0], -1, 5])
+        v_prob = tf.nn.softmax(v_prob_tmp)
+        v_prob = tf.reshape(v_prob, [tf.shape(v_prob_tmp)[0], -1])
         v_sample = self.sample_prob(v_prob)
         return v_prob, v_sample
 

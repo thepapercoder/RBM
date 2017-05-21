@@ -4,9 +4,9 @@ import utils, os
 
 
 def main():
-    data_path = 'data/rbm'
-    train_path = data_path + '/' + 'train.npy'
-    val_path = data_path + '/' + 'test.npy'
+    data_path = 'data/converted_data'
+    train_path = 'data/rbm/train.npy'
+    val_path = 'data/rbm/test.npy'
     if os.path.isfile(train_path):
         trX = np.load(train_path)
     else:
