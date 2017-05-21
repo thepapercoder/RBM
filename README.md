@@ -1,5 +1,8 @@
 # RBM
 My implementation for RBM - Restricted Bolzmann Machine for Collaborative Filtering
+RBM is describe in the paper http://www.machinelearning.org/proceedings/icml2007/papers/407.pdf 
+On how to train RBM, you can find it at http://image.diku.dk/igel/paper/TRBMAI.pdf
+The data for this repo is from CSEP 546: Data Mining, detail is in http://courses.cs.washington.edu/courses/csep546/10sp/hw1/
 
 # Dependency 
 The implementation run in Tensorflow and Numpy. If you are using windows, please install Anaconda and then Tensorflow and Numpy. If you are on linux machine, just using pip to install but still Anaconda is recommended. Detail can be found below.
