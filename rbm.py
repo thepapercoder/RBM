@@ -6,7 +6,7 @@ import os, utils
 
 class RBM(object):
 
-    def __init__(self, data_shape, directory_name='rbm', model_name='', learning_rate=0.00001, batch_size=128, n_epoch=50, k_step=1, hidden_dim=100):
+    def __init__(self, data_shape, n_rating=5, directory_name='rbm', model_name='', learning_rate=0.001, batch_size=128, n_epoch=50, k_step=1, hidden_dim=100):
         """
         RBM class - implementation of Restricted Boltzmann Machine for Collaborative Filtering
         Paper can be found at: http://www.machinelearning.org/proceedings/icml2007/papers/407.pdf
@@ -25,6 +25,7 @@ class RBM(object):
         self.N_EPOCH = n_epoch
         self.K_STEP = k_step
         self.HIDDEN_DIM = hidden_dim
+        self.N_RATING = n_rating
         self.VISIBLE_DIM = data_shape[1]
 
         # Model path
@@ -115,7 +116,7 @@ class RBM(object):
 
         self.run_update = [w_update, h_bias_update, v_bias_update]
 
-        self.cost = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.X, v_prob))))
+        self.cost = tf.reduce_mean(tf.abs(tf.subtract(self.X, v_sample)))
         _ = tf.summary.scalar("cost", self.cost)
         self.saver = tf.train.Saver()
 
@@ -145,7 +146,7 @@ class RBM(object):
         # Remove all the movie have not been rating
         v_prob_tmp = tf.matmul(h_sample, tf.transpose(self.W)) + self.v_bias
         v_mask = tf.sign(self.X)
-        v_prob_tmp = tf.reshape((v_prob_tmp * v_mask), [tf.shape(v_prob_tmp)[0], -1, 5])
+        v_prob_tmp = tf.reshape((v_prob_tmp * v_mask), [tf.shape(v_prob_tmp)[0], -1, self.N_RATING])
         v_prob = tf.nn.softmax(v_prob_tmp)
         v_prob = tf.reshape(v_prob, [tf.shape(v_prob_tmp)[0], -1])
         v_sample = self.sample_prob(v_prob)
